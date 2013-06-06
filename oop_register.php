@@ -7,5 +7,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$object = new User();
 	$object->Register();
 }
-include('veiws/oop_register.view.php');
+
+include('views/oop_register.view.php');
 ?>

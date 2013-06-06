@@ -9,7 +9,8 @@
 		
 		private $user_id		= "";
 		private $email			= "";
-		private $pass			= "";//create seperate for hashed?
+		private $pass			= "";
+		private $pass_hash		= "";
 		private $pass_confirm 	= "";
 		private $first_name		= "";
 		private $last_name		= "";
@@ -33,19 +34,18 @@
 			$this->pass  = filter_var($_POST['pass'],FILTER_SANITIZE_MAGIC_QUOTES);
 			
 			if(!empty($this->email) && !empty($this->pass)){
-				$st = $this->db->prepare("select pass,id,first_name from users where email=? ");
+				$st = $this->db->prepare("select pass,user_id,first_name from logoninfo where email=? ");
 				$st->bindParam(1, $this->email);
 				$st->execute();
 				$this->result = $st->fetch();
 				
 				if($st->rowCount() == 1){
-					if($this->result['pass'] == $this->pass){
-						//swtich conditional to pass_verify below
-						//if(password_verify($pass, $dbpass)){
+					
+					if(password_verify($this->pass, $this->result['pass'])){
 						//set session data
 						session_start();
 						$_SESSION['first_name'] = $this->result['first_name'];
-						$_SESSION['user_id']=$this->result['id'];
+						$_SESSION['user_id']=$this->result['user_id'];
 						
 						header('Location: http://localhost/oop_login/oop_home.php');
 					}
@@ -64,7 +64,7 @@
 		}
 		
 		public function Register(){
-			//sanitize
+			//sanitize/*
 			$this->first_name	= filter_var($_POST['first_name'],FILTER_SANITIZE_MAGIC_QUOTES);
 			$this->last_name	= filter_var($_POST['last_name'],FILTER_SANITIZE_MAGIC_QUOTES);
 			$this->email 		= filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
@@ -73,19 +73,22 @@
 			
 			//!! check passwods match
 			
-			//check if email is taken
-			if(!empty($this->first_name) && !empty($this->last_name) && !empty($this->email) && !empty($this->pass) && !empty($this->pass_confirm)){//may remove this validation after jquery
-				$st = $this->db->prepare("SELECT id FROM users WHERE email = ?");
+			//check if email is taken//may remove this validation after jquery
+			if(!empty($this->first_name) && !empty($this->last_name) && !empty($this->email) && !empty($this->pass) && !empty($this->pass_confirm)){
+				
+				$st = $this->db->prepare("SELECT user_id FROM logoninfo WHERE email = ?");
 				$st->bindParam(1, $this->email);
 				$st->execute();
 				//if statement false then email is not taken so add the user
 				if ($st->rowCount() == 0){
-					//!!hash pass
+					//hash pass
+					$this->pass_hash = password_hash($this->pass, PASSWORD_BCRYPT);
 					//create activation code
 					$this->active = password_hash(uniqid(rand(), true), PASSWORD_BCRYPT);
-					$st = $this->db->prepare("INSERT INTO users (email, pass, first_name, last_name, active, registration_date)VALUES (? , ? , ? , ? , ? , NOW())");
+					
+					$st = $this->db->prepare("INSERT INTO logoninfo (email, pass, first_name, last_name, active, registration_date)VALUES (? , ? , ? , ? , ? , NOW())");
 					$st->bindParam(1,$this->email);
-					$st->bindParam(2,$this->pass);
+					$st->bindParam(2,$this->pass_hash);
 					$st->bindParam(3,$this->first_name);
 					$st->bindParam(4,$this->last_name);
 					$st->bindParam(5,$this->active);
@@ -94,7 +97,7 @@
 					
 					if($st->rowCount() == 1){
 					 	//!!send email
-					 	$body .= BASE_URL . 'oop_activate.php?x=' . urlencode($this->email) . "&y=$this->active" ;
+					 	$body .=  'http://localhost/oop_login/' . 'oop_activate.php?x=' . urlencode($this->email) . "&y=$this->active" ;
 					 	$this->messages .= "<p>Thanks for registering. A conformation email has been sent to the address you provided. <br><br>\n\n
 						Please follow the link to activate your account </p>" ;
 						//don't have email set up so add email to messages
@@ -128,7 +131,7 @@
 	
 			if(strlen($this->activate) == 60){
 				
-				$st = $this->db->prepare('UPDATE users SET active = NULL WHERE email = ? AND active = ? LIMIT 1');
+				$st = $this->db->prepare('UPDATE logoninfo SET active = NULL WHERE email = ? AND active = ? LIMIT 1');
 				$st->bindParam(1,$this->email);
 				$st->bindParam(2,$this->activate);
 				
@@ -156,14 +159,14 @@
 			
 			if (filter_var($this->email , FILTER_VALIDATE_EMAIL)){//this will have to change after i've sorted validation with jquery
 				//check for record of email
-				$st = $this->db->prepare('SELECT id FROM users WHERE email = ?');
+				$st = $this->db->prepare('SELECT user_id FROM logoninfo WHERE email = ?');
 				$st->bindParam(1, $this->email);
 				
 				$st->execute();
 				
 				if($st->rowCount() == 1){
 					$this->result = $st->fetch();
-					$this->user_id = $this->result['id'];
+					$this->user_id = $this->result['user_id'];
 					//change session data?
 				}
 				else{
@@ -179,10 +182,10 @@
 				//create a random 10 char password
 				$this->pass = substr(password_hash(uniqid(rand(), true), PASSWORD_BCRYPT), 10, 15);
 				//pass hash the random password
-				//$this->pass = password_hash($this->pass, PASSWORD_BCRYPT);//not using this at the mo.create pri var $pass_hash?
+				$this->pass_hash = password_hash($this->pass, PASSWORD_BCRYPT);//create pri var $pass_hash?
 				// update db with new pass
-				$st = $this->db->prepare("UPDATE users SET pass = ? WHERE id = ? LIMIT 1");
-				$st->bindParam(1, $this->pass);
+				$st = $this->db->prepare("UPDATE logoninfo SET pass = ? WHERE user_id = ? LIMIT 1");
+				$st->bindParam(1, $this->pass_hash);
 				$st->bindParam(2, $this->user_id);
 				
 				$st->execute();
@@ -220,10 +223,10 @@
 			//check passwords match and execute query
 			if ($this->pass == $this->pass_confirm){
 				//encription
-				//$this->pass = password_hash($this->pass , PASSWORD_BCRYPT);
+				$this->pass_hash = password_hash($this->pass , PASSWORD_BCRYPT);
 				
-				$st = $this->db->prepare("UPDATE users SET pass = ? WHERE id = ? LIMIT 1");
-				$st->bindParam(1, $this->pass);
+				$st = $this->db->prepare("UPDATE logoninfo SET pass = ? WHERE user_id = ? LIMIT 1");
+				$st->bindParam(1, $this->pass_hash);
 				$st->bindParam(2, $this->user_id);
 				
 				$st->execute();
