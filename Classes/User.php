@@ -47,7 +47,7 @@
 						$_SESSION['first_name'] = $this->result['first_name'];
 						$_SESSION['user_id']=$this->result['user_id'];
 						
-						header('Location: http://localhost/oop_login/oop_home.php');
+						header('Location:' . BASE_URL . 'oop_home.php');
 					}
 					else{
 						$this->messages .= "Incorrect email or password";
@@ -64,7 +64,7 @@
 		}
 		
 		public function Register(){
-			//sanitize/*
+			//sanitize
 			$this->first_name	= filter_var($_POST['first_name'],FILTER_SANITIZE_MAGIC_QUOTES);
 			$this->last_name	= filter_var($_POST['last_name'],FILTER_SANITIZE_MAGIC_QUOTES);
 			$this->email 		= filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
@@ -147,7 +147,7 @@
 			else{
 				//redirect
 				//$url = BASE_URL . 'oop_register.php';
-				header("Location: http://localhost/oop_login/oop_register.php");
+				header("Location:" . BASE_URL . "oop_register.php");
 			}
 		echo $this->messages;
 		}
@@ -252,7 +252,7 @@
 			//if no session is present redirect the user
 			if(!isset($_SESSION['user_id'])){
 			
-				header('Location: http://localhost/oop_login/oop_login.php');
+				header('Location:' . BASE_URL . 'oop_login.php');
 			}
 			else{
 				//cancel session
