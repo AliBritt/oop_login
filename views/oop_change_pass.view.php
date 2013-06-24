@@ -62,7 +62,7 @@
 
     <div class="container">
 
-      <form class="form-signin" action="oop_change_pass.php" method="POST">
+      <form class="form-signin" action="oop_change_pass.php" method="POST" id="chgPassForm">
         <h2 class="form-signin-heading">Change password</h2>
         <input class="input-block-level" type="password" name="pass" placeholder="Password">
         <input class="input-block-level" type="password" name="pass_confirm" placeholder="Confirm Password">
@@ -84,6 +84,10 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jQuery v1.10.1.js" type="text/javascript"></script>
+    <script src="js/jquery.validate.js" type="text/javascript"></script>
+    <script src="js/jqueryValiRule.js" type="text/javascript"></script>
+    	
     <script src="Sign%20in%20%C2%B7%20Twitter%20Bootstrap_files/jquery.js"></script>
     <script src="Sign%20in%20%C2%B7%20Twitter%20Bootstrap_files/bootstrap-transition.js"></script>
     <script src="Sign%20in%20%C2%B7%20Twitter%20Bootstrap_files/bootstrap-alert.js"></script>

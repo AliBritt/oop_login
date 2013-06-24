@@ -147,7 +147,7 @@
 			else{
 				//redirect
 				//$url = BASE_URL . 'oop_register.php';
-				header("Location:" . BASE_URL . "oop_register.php");
+				header('Location:' . BASE_URL . 'oop_register.php');
 			}
 		echo $this->messages;
 		}
