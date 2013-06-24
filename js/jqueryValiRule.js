@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	//alert(1);
+
 	$('#loginForm').validate({
 		rules:{
 		
@@ -10,7 +10,7 @@ $(document).ready(function(){
 			pass:{
 				required:true,
 				minlength: 4,
-				maxlength: 8
+				maxlength: 60
 			}
 		}
 	});
@@ -22,25 +22,24 @@ $(document).ready(function(){
 			first_name:{
 				required:true,
 				minlength: 2,
-				maxlength: 8
+				maxlength: 20
 			},
 			
 			last_name:{
 				required:true,
 				minlength: 2,
-				maxlength: 8
+				maxlength: 40
 			},
 			
-			 email:{
+			email:{
 			 	required:true,
 				email:true,
-				maxlength: 8
 			},
 			
 			pass:{
 				required:true,
 				minlength: 4,
-				maxlength: 8
+				maxlength: 60
 			},
 			
 			pass_confirm:{
@@ -58,7 +57,7 @@ $(document).ready(function(){
 			pass:{
 				required:true,
 				minlength: 4,
-				maxlength: 8
+				maxlength: 60
 			},
 			
 			pass_confirm:{
