@@ -4,4 +4,6 @@
 	
 	$object = new User();
 	$object->Logout();
+	
+	include('views/oop_loggedOut.view.php')
 ?>
